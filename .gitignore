@@ -1,0 +1,28 @@
+# Node.js specific files
+node_modules/
+npm-debug.log
+yarn-debug.log
+yarn-error.log
+
+# Logs
+logs/
+*.log
+logs/**/*.log
+
+# Environment variable files
+.env
+.env.local
+
+# OS specific files
+.DS_Store    # macOS
+Thumbs.db    # Windows
+
+# IDE specific files
+.vscode/
+.idea/
+*.swp        # Vim swap files
+
+# Dependency directories
+coverage/    # Test coverage results
+dist/        # Build directory for frontend projects
+build/       # Build directory for some projects
