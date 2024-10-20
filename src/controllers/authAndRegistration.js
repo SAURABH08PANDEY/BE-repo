@@ -59,7 +59,7 @@ const initializeCompany = async (req, res) => {
     const saveCompany = await company.save();
     const phoneOtp = await generateOTP(company._id, "phone");
     const emailOtp = await generateOTP(company._id, "email");
-    //const response = await sendEmail(company_email, emailOtp);
+    const response = await sendEmail(company_email, emailOtp);
 
     res.status(201).json({
       success: true,
@@ -127,14 +127,23 @@ const verifyOtp = async (req, res) => {
 
       return res.status(200).json({
         success: true,
-        message: "OTP verified successfully",
-        token,
+        data: {
+          message: "OTP verified successfully",
+          isPhoneVerified: true,
+          isEmailVerified: true,
+          token,
+        },
       });
     }
 
-    res
-      .status(200)
-      .json({ success: true, message: "OTP verified successfully" });
+    res.status(200).json({
+      success: true,
+      data: {
+        message: "OTP verified successfully",
+        isPhoneVerified: company.is_phone_verified,
+        isEmailVerified: company.is_email_verified,
+      },
+    });
     return;
   } catch (error) {
     res.status(500).json({ success: false, error: error.message });
@@ -151,7 +160,7 @@ const createInterview = async (req, res) => {
       endDate,
       candidateEmails,
     } = req.body;
-  
+
     const interview = new Interview({
       companyId: req.auth_user.companyId,
       jobTitle,
@@ -160,13 +169,35 @@ const createInterview = async (req, res) => {
       endDate,
     });
     const savedInterview = await interview.save();
-    const candidates = await Candidate.createCandidatesFromEmails(candidateEmails);
+    const candidates = await Candidate.createCandidatesFromEmails(
+      candidateEmails
+    );
     const candidateIds = candidates.map((candidate) => candidate._id);
-    await CandidateInterview.createCandidatesInterview(candidateIds, savedInterview._id);
-    res.status(200).json({ status: "success" });
-    
+    await CandidateInterview.createCandidatesInterview(
+      candidateIds,
+      savedInterview._id
+    );
+    res.status(200).json({ status: true });
   } catch (error) {
-    res.status(400).json({ status: error.message });
+    res.status(400).json({ status: false });
+  }
+};
+
+const verifyToken = async (req, res) => {
+  try {
+    const userData = req.auth_user;
+    res.status(200).json({
+      status: true,
+      data: {
+        companyId: userData?.companyId,
+        email: userData?.email,
+        phone: userData?.phone,
+      },
+    });
+    return;
+  } catch (error) {
+    res.status(401).json({ status: false, message: "Unauthorized" });
+    return;
   }
 };
 
@@ -174,4 +205,5 @@ module.exports = {
   initializeCompany,
   createInterview,
   verifyOtp,
+  verifyToken,
 };

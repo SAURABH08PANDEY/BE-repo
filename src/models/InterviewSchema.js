@@ -16,7 +16,7 @@ const InterviewSchema = new mongoose.Schema({
   },
   experienceLevel: {
     type: String,
-    enum: ['Junior', 'Mid', 'Senior'],
+    enum: ['junior', 'mid', 'senior'],
     required: true,
   },
   endDate: {
